@@ -41,4 +41,4 @@ JobSchema.index({ title: 'text', description: 'text' });
  * create and export mongoose model
  * @typedef Job
  */
-module.exports = mongoose.model('Job', UserSchema, CollectionConstants.JOB);
+module.exports = mongoose.model('Job', JobSchema, CollectionConstants.JOB);
