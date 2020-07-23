@@ -16,7 +16,7 @@ router.post('/create',
   create);
 
 /* Get All Jobs, Path - /api/jobs/getAll */
-router.post('/getAll',
+router.get('/getAll',
   validate(getAllValidation),
   getAll);
 

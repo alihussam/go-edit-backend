@@ -44,7 +44,7 @@ const getAll = async (req, res, next) => {
       user,
       page,
     } = req.query;
-    const { limit = 50 } = req.query;
+    let { limit = 50 } = req.query;
     let skip;
     const $match = {};
 
@@ -77,7 +77,7 @@ const getAll = async (req, res, next) => {
             // lookup user in job
             {
               $lookup: {
-                from: collectionConstant.JOB,
+                from: collectionConstant.USER,
                 localField: 'user',
                 foreignField: '_id',
                 as: 'user',
