@@ -25,6 +25,31 @@ const UserSchema = mongoose.Schema({
     default: 'https://uifaces.co/our-content/donated/L7wQctBt.jpg',
   },
   isDisabled: { type: Boolean, default: false },
+  // freelance profile details
+  freenlancerProfile: {
+    jobTitle: {
+      type: String,
+    },
+    rating: {
+      type: Number,
+      default: 0,
+    },
+    projects: {
+      type: Number,
+      default: 0,
+    },
+    assets: {
+      type: Number,
+      default: 0,
+    },
+    bio: {
+      type: String,
+    },
+    skills: [{
+      type: mongoose.Types.ObjectId,
+      ref: 'Skill',
+    }],
+  },
 }, {
   timestamps: true,
 });
