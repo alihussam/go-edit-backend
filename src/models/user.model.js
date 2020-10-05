@@ -20,6 +20,10 @@ const UserSchema = mongoose.Schema({
     type: String,
     enum: Object.values(UserConstants.Roles),
   },
+  imageUrl: {
+    type: String,
+    default: 'https://uifaces.co/our-content/donated/L7wQctBt.jpg',
+  },
   isDisabled: { type: Boolean, default: false },
 }, {
   timestamps: true,

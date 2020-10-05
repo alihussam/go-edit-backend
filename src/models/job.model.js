@@ -27,10 +27,6 @@ const JobSchema = mongoose.Schema({
     type: mongoose.Types.ObjectId,
     ref: 'User',
   },
-  userRole: {
-    type: String,
-    enum: Object.values(UserConstants.Roles),
-  },
   isDisabled: { type: Boolean, default: false },
 }, {
   timestamps: true,
