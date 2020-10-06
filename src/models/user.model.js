@@ -87,6 +87,10 @@ UserSchema.pre('save', async function preSaveHook(next) {
 
 // pre-hook that will execute before findOneAndUpdate Operation
 UserSchema.pre('findOneAndUpdate', async function preFindOneAndUpdateHook(next) {
+  if (!this.getUpdate()) {
+    next();
+    return;
+  }
   const { password, email } = this.getUpdate();
   if (password) {
     const hash = bcrypt.hashSync(this.password, bcrypt.genSaltSync(SALT_FACTOR));
