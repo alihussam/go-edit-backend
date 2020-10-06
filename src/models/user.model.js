@@ -50,6 +50,20 @@ const UserSchema = mongoose.Schema({
       ref: 'Skill',
     }],
   },
+  employerProfile: {
+    rating: {
+      type: Number,
+      default: 0,
+    },
+    projectsCompleted: {
+      type: Number,
+      default: 0,
+    },
+    assetsBought: {
+      type: Number,
+      default: 0,
+    },
+  },
 }, {
   timestamps: true,
 });
