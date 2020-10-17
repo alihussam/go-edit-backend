@@ -21,7 +21,7 @@ const create = async (req, res, next) => {
     const { _id } = req.profile;
 
     // create a job
-    const data = await Job.create({ ...req.body, userRole: req.role, user: _id });
+    const data = await Job.create({ ...req.body, user: _id });
 
     //send response back to user
     sendResponse(res, null, data);
