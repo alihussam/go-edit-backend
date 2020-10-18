@@ -72,6 +72,7 @@ const getAll = async (req, res, next) => {
           metaData: [{ $count: 'totalDocuments' }, { $addFields: { page, limit } }],
           entries: [
             // paginate data
+            { $sort: { createdAt: -1 } },
             { $skip: skip },
             { $limit: limit },
             // lookup user in job
