@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { Job } = require('../../models');
+const { Asset } = require('../../models');
 const {
   sendResponse,
   Factory: { ErrorFactory },
@@ -12,7 +12,7 @@ const collectionConstant = require('../../constants/collection.constant');
 const { JobStatus, BidStatus } = require('../../constants/job.constant');
 
 /**
- * Create a job
+ * Create an asset
  * @param {req} req express request object
  * @param {res} res express response object
  * @param {next} next express ref to next middleware
@@ -21,10 +21,8 @@ const create = async (req, res, next) => {
   try {
     const { _id } = req.profile;
 
-    // create a job
-    const data = await Job.create({ ...req.body, user: _id });
+    const data = await Asset.create({ ...req.body, user: _id });
 
-    // send response back to user
     sendResponse(res, null, data);
   } catch (error) {
     next(error);
@@ -32,80 +30,10 @@ const create = async (req, res, next) => {
 };
 
 /**
- * Bid on a job
+ * GetAll All assets
  * @param {Request} req express request object
  * @param {Response} res express response object
- * @param {Function} next express next middleware
- */
-const bid = async (req, res, next) => {
-  try {
-    const { _id } = req.profile;
-    const {
-      job, description, budget, currency,
-    } = req.body;
-
-    const bidPayload = {
-      user: _id, description, budget, currency,
-    };
-
-    const data = await Job.findOneAndUpdate({ _id: job },
-      { bids: { $push: bidPayload } }, { new: true });
-
-    sendResponse(res, null, data);
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * Take Action On Bid
- * @param {Request} req express request object
- * @param {Response} res express response object
- * @param {Function} next express next middleware
- */
-const bidAction = async (req, res, next) => {
-  try {
-    const { job, bid: bidId, status } = req.body;
-
-    const payload = { 'bids.status': status };
-
-    if (status === BidStatus.ACCEPETED) {
-      payload.status = JobStatus.IN_PROGRESS;
-    }
-
-    const data = await Job.findOneAndUpdate({ _id: job, 'bids._id': bidId }, payload, { new: true });
-
-    sendResponse(res, null, data);
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * Take Action On Job
- * @param {Request} req express request object
- * @param {Response} res express response object
- * @param {Function} next express next middleware
- */
-const jobAction = async (req, res, next) => {
-  try {
-    const { job, status } = req.body;
-
-    const payload = { status };
-
-    const data = await Job.findOneAndUpdate({ _id: job }, payload, { new: true });
-
-    sendResponse(res, null, data);
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * GetAll Jobs based on user role
- * @param {req} req express request object
- * @param {res} res express response object
- * @param {next} next express ref to next middleware
+ * @param {Next} next express ref to next middleware
  */
 const getAll = async (req, res, next) => {
   try {
@@ -135,7 +63,7 @@ const getAll = async (req, res, next) => {
       $match.$text = { $search: searchString };
     }
 
-    const [data] = await Job.aggregate([
+    const [data] = await Asset.aggregate([
       { $match },
       // paginate data
       {
@@ -160,8 +88,9 @@ const getAll = async (req, res, next) => {
               $project: {
                 title: 1,
                 description: 1,
-                budget: 1,
+                price: 1,
                 currency: 1,
+                resourceUrl: 1,
                 user: { $arrayElemAt: ['$user', 0] },
                 createdAt: 1,
                 updatedAt: 1,
@@ -191,8 +120,5 @@ const getAll = async (req, res, next) => {
  */
 module.exports = {
   create,
-  bid,
-  bidAction,
-  jobAction,
   getAll,
 };

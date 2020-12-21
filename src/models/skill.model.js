@@ -9,11 +9,11 @@ const {
  */
 const Schema = mongoose.Schema({
   title: {
-    type: String
+    type: String,
   },
   createdBy: {
     type: mongoose.Types.ObjectId,
-    ref: 'User',
+    ref: CollectionConstants.USER,
   },
   isDisabled: { type: Boolean, default: false },
 }, {
@@ -24,4 +24,4 @@ const Schema = mongoose.Schema({
  * create and export mongoose model
  * @typedef Job
  */
-module.exports = mongoose.model('Skill', Schema, CollectionConstants.SKILL);
+module.exports = mongoose.model(CollectionConstants.SKILL, Schema, CollectionConstants.SKILL);

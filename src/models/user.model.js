@@ -47,7 +47,7 @@ const UserSchema = mongoose.Schema({
     },
     skills: [{
       type: mongoose.Types.ObjectId,
-      ref: 'Skill',
+      ref: CollectionConstants.SKILL,
     }],
   },
   employerProfile: {
@@ -128,4 +128,4 @@ UserSchema.method({
  * create and export mongoose model
  * @typedef User
  */
-module.exports = mongoose.model('User', UserSchema, CollectionConstants.USER);
+module.exports = mongoose.model(CollectionConstants.USER, UserSchema, CollectionConstants.USER);

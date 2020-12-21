@@ -2,6 +2,7 @@ const { Joi } = require('express-validation');
 const {
   User: { Roles: UserRoleConstants },
   Common: CommonConstants,
+  Job: JobConstants,
 } = require('../../constants');
 
 /**
@@ -28,6 +29,59 @@ const create = {
 };
 
 /**
+ * Bid job validation
+ */
+const bid = {
+  body: Joi.object({
+    job: Joi.string().hex().min(24).max(24)
+      .required(),
+    description: Joi
+      .string()
+      .required(),
+    budget: Joi
+      .number()
+      .required(),
+    currency: Joi
+      .string()
+      .valid(
+        CommonConstants.Currencies.PKR,
+        CommonConstants.Currencies.USD,
+      ),
+  }),
+};
+
+/**
+ * Bid action validation
+ */
+const bidAction = {
+  body: Joi.object({
+    job: Joi.string().hex().min(24).max(24)
+      .required(),
+    bid: Joi.string().hex().min(24).max(24)
+      .required(),
+    status: Joi.string().valid(
+      JobConstants.BidStatus.ACCEPETED,
+      JobConstants.BidStatus.REJECTED,
+      JobConstants.BidStatus.INTERVIEWING,
+    ).required(),
+  }),
+};
+
+/**
+ * Job action validation
+ */
+const jobAction = {
+  body: Joi.object({
+    job: Joi.string().hex().min(24).max(24)
+      .required(),
+    status: Joi.string().valid(
+      JobConstants.JobStatus.COMPLETED,
+      JobConstants.JobStatus.CANCELED,
+    ).required(),
+  }),
+};
+
+/**
  * Get All currency validation
  */
 const getAll = {
@@ -47,5 +101,8 @@ const getAll = {
  */
 module.exports = {
   create,
+  bid,
+  bidAction,
+  jobAction,
   getAll,
 };
