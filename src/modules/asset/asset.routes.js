@@ -16,20 +16,20 @@ const {
 
 /* Create Asset, Path - /api/asset/create */
 router.post('/create',
-  validate(createValidation),
   fileUpload('files', false),
+  validate(createValidation),
   create);
 
 /* create Resource Asset, Path - /api/asset/update */
 router.post('/update',
-  validate(updateValidation),
   fileUpload('files', false),
+  validate(updateValidation),
   update);
 
 /* create Resource Asset, Path - /api/asset/createResource */
 router.post('/createResource',
-  validate(createResourceValidation),
   fileUpload(),
+  validate(createResourceValidation),
   createResource);
 
 /* Get All Assets, Path - /api/asset/getAll */
