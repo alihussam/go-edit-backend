@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { validate } = require('../../middlewares');
+const { validate, fileUpload } = require('../../middlewares');
 const {
   create,
   createResource,
@@ -17,16 +17,19 @@ const {
 /* Create Asset, Path - /api/asset/create */
 router.post('/create',
   validate(createValidation),
+  fileUpload('files', false),
   create);
 
 /* create Resource Asset, Path - /api/asset/update */
 router.post('/update',
   validate(updateValidation),
+  fileUpload('files', false),
   update);
 
 /* create Resource Asset, Path - /api/asset/createResource */
 router.post('/createResource',
   validate(createResourceValidation),
+  fileUpload(),
   createResource);
 
 /* Get All Assets, Path - /api/asset/getAll */
