@@ -58,6 +58,10 @@ const { error: envConfigError, value: envVars } = Joi.object({
   MAILER_PASSWORD: Joi
     .string()
     .required(),
+
+  // validate azure credentials
+  AZURE_STORAGE_CONNECTION_STRING: Joi.string().required(),
+  AZURE_STORAGE_CONTAINER_NAME: Joi.string().required(),
 })
   .required()
   .validate(process.env, { allowUnknown: true });
@@ -70,7 +74,7 @@ if (envConfigError) {
  * module mounting configuration
  * unmount: if you dont want to mount a module with API, add it unmount
  * deauth: if a modules API does not required authentication, add it in deauth
- * NOTE: if a module has a mix of auth and deauth API, 
+ * NOTE: if a module has a mix of auth and deauth API,
  * add it in deauth and add auth in its each individual route where required
  */
 const moduleConfiguration = {
@@ -80,7 +84,6 @@ const moduleConfiguration = {
     'mappings',
   ],
 };
-
 
 // Export all configuration
 const finalConfiguration = {
@@ -102,7 +105,11 @@ const finalConfiguration = {
     EMAIL: envVars.EMAIL,
     PASSWORD: envVars.PASSWORD,
   },
-  MODULE_CONFIGURATION: moduleConfiguration
+  AZURE: {
+    AZURE_STORAGE_CONNECTION_STRING: envVars.AZURE_STORAGE_CONNECTION_STRING,
+    AZURE_STORAGE_CONTAINER_NAME: envVars.AZURE_STORAGE_CONTAINER_NAME,
+  },
+  MODULE_CONFIGURATION: moduleConfiguration,
 };
 
 module.exports = finalConfiguration;

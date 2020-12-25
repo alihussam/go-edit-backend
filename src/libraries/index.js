@@ -3,6 +3,7 @@ const Mappings = require('./mappings');
 const Factory = require('./factories');
 const sendResponse = require('./sendResponse.lib');
 const JwtManager = require('./jwtManager.lib');
+const FileUpload = require('./fileUpload.lib');
 
 module.exports = {
   Exceptions,
@@ -10,4 +11,5 @@ module.exports = {
   sendResponse,
   Factory,
   JwtManager,
+  FileUpload,
 };

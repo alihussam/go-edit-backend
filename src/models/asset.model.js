@@ -21,6 +21,9 @@ const AssetSchema = mongoose.Schema({
     enum: Object.values(CommonConstants.Currencies),
     default: CommonConstants.Currencies.PKR,
   },
+  imageUrls: [{
+    type: String,
+  }],
   resourceUrl: {
     type: String,
   },
