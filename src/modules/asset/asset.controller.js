@@ -4,7 +4,7 @@ const {
   sendResponse,
   Factory: { ErrorFactory },
   JwtManager,
-  Mappings: { Errors: { AccountErrors } },
+  Mappings: { Errors: { AccountErrors, SystemErrors } },
   FileUpload: { multiFileUpload, fileUpload },
 } = require('../../libraries');
 const { User: { Roles: UserRoleConstants }, Collection } = require('../../constants');
@@ -21,7 +21,7 @@ const { AssetErrors } = require('../../libraries/mappings/errors');
  */
 const create = async (req, res, next) => {
   try {
-    const { profile: { _id }, files } = req;
+    const { profile: { _id }, files = [] } = req;
 
     const payload = {
       ...req.body,
@@ -33,12 +33,26 @@ const create = async (req, res, next) => {
     // update user asset count
     await User.update({ _id }, { $inc: { 'freenlancerProfile.assets': 1 } });
 
+    // find resource first
+    const resourceFiles = files.filter((file) => file.originalname === 'resource');
+    if (!resourceFiles.length) {
+      throw ErrorFactory.getError(SystemErrors.MISSING_FILE_UPLOAD_PARAMETERS);
+    }
+
+    const fileUploadPayload = {};
+
+    // upload resource file first
+    const resourceUrl = await fileUpload(`ge/${_id}/assets/${data._id.toString()}`, resourceFiles[0]);
+    fileUploadPayload.resourceUrl = resourceUrl;
+
     // upload images
     const uploadStatus = await multiFileUpload(`ge/${_id}/assets/${data._id.toString()}`, files);
 
     const imageUrls = (uploadStatus.filter((us) => !us.isFailed)).map((us) => us.url);
 
-    await Asset.updateOne({ _id: data._id }, { $push: { imageUrls: { $each: imageUrls } } });
+    fileUploadPayload.$push = { imageUrls: { $each: imageUrls } };
+
+    await Asset.updateOne({ _id: data._id });
 
     sendResponse(res, null, {
       ...data.toObject(),
