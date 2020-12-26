@@ -5,10 +5,10 @@ const {
   Factory: { ErrorFactory },
   JwtManager,
   Mappings: { Errors: { AccountErrors } },
+  FileUpload: { multiFileUpload },
 } = require('../../libraries');
 const { User: { Roles: UserRoleConstants } } = require('../../constants');
 const { ACCOUNT_ALREADY_EXIST } = require('../../libraries/mappings/errors/account.errors');
-const { fromPairs } = require('lodash');
 
 /**
  * Update Profile controller
@@ -18,7 +18,7 @@ const { fromPairs } = require('lodash');
  */
 const updateProfile = async (req, res, next) => {
   try {
-    const { _id } = req.profile;
+    const { profile: { _id }, files } = req;
     const { name, freenlancerProfile } = req.body;
 
     // check if this user exist
@@ -34,12 +34,18 @@ const updateProfile = async (req, res, next) => {
       updatePayload.freenlancerProfile = {
         ...data.freenlancerProfile,
         ...freenlancerProfile,
-      }
+      };
     }
+
+    const uploadStatus = await multiFileUpload(`ge/${_id}/${data._id.toString()}`, files);
+
+    const imageUrls = (uploadStatus.filter((us) => !us.isFailed)).map((us) => us.url);
+
+    updatePayload.$push = { portfolioUrls: { $each: imageUrls } };
 
     const newData = await User.findOneAndUpdate({ _id }, updatePayload, { new: true });
 
-    //send response back to user
+    // send response back to user
     sendResponse(res, null, newData.safeModel());
   } catch (error) {
     next(error);

@@ -24,6 +24,9 @@ const UserSchema = mongoose.Schema({
     type: String,
     default: 'https://uifaces.co/our-content/donated/L7wQctBt.jpg',
   },
+  portfolioUrls: [{
+    type: String,
+  }],
   isDisabled: { type: Boolean, default: false },
   // freelance profile details
   freenlancerProfile: {
