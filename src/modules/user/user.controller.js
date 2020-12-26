@@ -82,9 +82,70 @@ const updateProfile = async (req, res, next) => {
 };
 
 /**
+ * GetAll All users
+ * @param {Request} req express request object
+ * @param {Response} res express response object
+ * @param {Next} next express ref to next middleware
+ */
+const getAll = async (req, res, next) => {
+  try {
+    const { _id } = req.profile;
+    const {
+      searchString,
+      page,
+    } = req.query;
+    let { limit = 50 } = req.query;
+    let skip;
+    const $match = {};
+
+    // construct pagination
+    if (!page) {
+      skip = 0;
+      limit = Number.MAX_SAFE_INTEGER;
+    } else {
+      skip = (page * limit) - limit;
+    }
+
+    // construct query
+    // if (searchString) {
+    //   $match.$text = { $search: searchString };
+    // }
+
+    const [data] = await User.aggregate([
+      { $match },
+      // paginate data
+      {
+        $facet: {
+          metaData: [{ $count: 'totalDocuments' }, { $addFields: { page, limit } }],
+          entries: [
+            // paginate data
+            { $sort: { createdAt: -1 } },
+            { $skip: skip },
+            { $limit: limit },
+          ],
+        },
+      },
+      // project to handle empty responses
+      {
+        $project: {
+          entries: 1,
+          metaData: { $ifNull: [{ $arrayElemAt: ['$metaData', 0] }, { totalDocuments: 0, page, limit }] },
+        },
+      },
+    ]);
+
+    // send response back to user
+    sendResponse(res, null, data);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * Export
  */
 module.exports = {
   updateProfile,
   updateProfilePicture,
+  getAll,
 };

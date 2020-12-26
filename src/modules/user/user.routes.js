@@ -4,8 +4,15 @@ const {
   authenticate,
   fileUpload,
 } = require('../../middlewares');
-const { updateProfile, updateProfilePicture } = require('./user.controller');
-const { updateProfile: updateProfileValidation } = require('./user.validations');
+const {
+  updateProfile,
+  updateProfilePicture,
+  getAll,
+} = require('./user.controller');
+const {
+  updateProfile: updateProfileValidation,
+  getAll: getAllValidation,
+} = require('./user.validations');
 
 /* Update User Profile Picture Route, Path - /api/user/updateProfilePicture */
 router.post('/updateProfilePicture',
@@ -17,6 +24,11 @@ router.post('/updateProfile',
   fileUpload('files', false),
   validate(updateProfileValidation),
   updateProfile);
+
+/* Get All User Profile Route, Path - /api/user/updateProfile */
+router.get('/getAll',
+  validate(getAllValidation),
+  getAll);
 
 /**
  * Export router
