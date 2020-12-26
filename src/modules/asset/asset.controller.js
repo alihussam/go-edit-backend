@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { Asset } = require('../../models');
+const { Asset, User } = require('../../models');
 const {
   sendResponse,
   Factory: { ErrorFactory },
@@ -29,6 +29,9 @@ const create = async (req, res, next) => {
     };
 
     const data = await Asset.create(payload);
+
+    // update user asset count
+    await User.update({ _id }, { $inc: { 'freenlancerProfile.assets': 1 } });
 
     // upload images
     const uploadStatus = await multiFileUpload(`ge/${_id}/assets/${data._id.toString()}`, files);
