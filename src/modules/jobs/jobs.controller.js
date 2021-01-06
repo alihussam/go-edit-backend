@@ -161,6 +161,7 @@ const getAll = async (req, res, next) => {
                 title: 1,
                 description: 1,
                 budget: 1,
+                bids: 1,
                 currency: 1,
                 user: { $arrayElemAt: ['$user', 0] },
                 createdAt: 1,
