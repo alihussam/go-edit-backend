@@ -49,7 +49,7 @@ const bid = async (req, res, next) => {
     };
 
     const data = await Job.findOneAndUpdate({ _id: job },
-      { bids: { $push: bidPayload } }, { new: true });
+      { $push: { bids: bidPayload } }, { new: true });
 
     sendResponse(res, null, data);
   } catch (error) {
