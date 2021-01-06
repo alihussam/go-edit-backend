@@ -7,4 +7,12 @@ module.exports = {
     statusCode: httpStatus.NOT_FOUND,
     message: 'Asset not found',
   },
+
+  // jobs
+  BID_ALREADY_PLACED: {
+    key: 'BID_ALREADY_PLACED',
+    statusCode: httpStatus.FORBIDDEN,
+    message: 'Bid already placed',
+  },
+
 };

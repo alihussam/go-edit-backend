@@ -10,6 +10,7 @@ const { User: { Roles: UserRoleConstants }, Collection } = require('../../consta
 const { ACCOUNT_ALREADY_EXIST } = require('../../libraries/mappings/errors/account.errors');
 const collectionConstant = require('../../constants/collection.constant');
 const { JobStatus, BidStatus } = require('../../constants/job.constant');
+const { AssetErrors } = require('../../libraries/mappings/errors');
 
 /**
  * Create a job
@@ -48,6 +49,11 @@ const bid = async (req, res, next) => {
       user: _id, description, budget, currency,
     };
 
+    const isAlreadyPlacedBid = await Job.findOne({ _id: job, 'bids.user': _id });
+    if (isAlreadyPlacedBid) {
+      throw ErrorFactory.getError(AssetErrors.BID_ALREADY_PLACED);
+    }
+
     const data = await Job.findOneAndUpdate({ _id: job },
       { $push: { bids: bidPayload } }, { new: true });
 
@@ -67,7 +73,7 @@ const bidAction = async (req, res, next) => {
   try {
     const { job, bid: bidId, status } = req.body;
 
-    const payload = { 'bids.status': status };
+    const payload = { 'bids.$.status': status };
 
     if (status === BidStatus.ACCEPETED) {
       payload.status = JobStatus.IN_PROGRESS;
@@ -155,19 +161,55 @@ const getAll = async (req, res, next) => {
                 as: 'user',
               },
             },
-            // project to clean format data
             {
               $project: {
                 title: 1,
                 description: 1,
                 budget: 1,
                 bids: 1,
+                status: 1,
                 currency: 1,
                 user: { $arrayElemAt: ['$user', 0] },
                 createdAt: 1,
                 updatedAt: 1,
               },
             },
+            {
+              $unwind: {
+                preserveNullAndEmptyArrays: true,
+                path: '$bids',
+              },
+            },
+            // lookup user of bid
+            {
+              $lookup: {
+                from: collectionConstant.USER,
+                localField: 'bids.user',
+                foreignField: '_id',
+                as: 'tempBidUser',
+              },
+            },
+            {
+              $addFields: {
+                'bids.user': { $arrayElemAt: ['$tempBidUser', 0] },
+              },
+            },
+            // project to clean format data
+            {
+              $group: {
+                _id: '$_id',
+                title: { $first: '$title' },
+                description: { $first: '$description' },
+                budget: { $first: '$budget' },
+                bids: { $push: '$bids' },
+                currency: { $first: '$currency' },
+                status: { $first: '$status' },
+                user: { $first: '$user' },
+                createdAt: { $first: '$createdAt' },
+                updatedAt: { $first: '$updatedAt' },
+              },
+            },
+            { $sort: { createdAt: -1 } },
           ],
         },
       },
