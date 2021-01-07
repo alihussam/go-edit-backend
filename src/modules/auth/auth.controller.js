@@ -36,9 +36,10 @@ const login = async (req, res, next) => {
     const token = JwtManager.generateToken(
       { profile: data.safeModel(), role },
       JWT.SECRET,
-      { expiresIn: JWT.EXPIRES_IN });
+      { expiresIn: JWT.EXPIRES_IN },
+    );
 
-    //send response back to user
+    // send response back to user
     sendResponse(res, null, { profile: data.safeModel(), token });
   } catch (error) {
     next(error);
@@ -69,9 +70,10 @@ const signup = async (req, res, next) => {
     const token = JwtManager.generateToken(
       { profile: data.safeModel(), role },
       JWT.SECRET,
-      { expiresIn: JWT.EXPIRES_IN });
+      { expiresIn: JWT.EXPIRES_IN },
+    );
 
-    //send response back to user
+    // send response back to user
     sendResponse(res, null, { token, profile: data.safeModel() });
   } catch (error) {
     next(error);
@@ -88,11 +90,15 @@ const getProfile = async (req, res, next) => {
   try {
     const { _id } = req.profile;
     const data = await User.findOne({ _id, role: req.role });
+    if (!data) {
+      const error = ErrorFactory.getError(AccountErrors.ACCOUNT_NOT_FOUND);
+      throw error;
+    }
     sendResponse(res, null, data.safeModel());
   } catch (error) {
     next(error);
   }
-}
+};
 
 /**
  * Export

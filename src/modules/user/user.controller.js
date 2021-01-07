@@ -48,7 +48,20 @@ const updateProfilePicture = async (req, res, next) => {
 const updateProfile = async (req, res, next) => {
   try {
     const { profile: { _id }, files } = req;
-    const { name, freenlancerProfile } = req.body;
+    const {
+      firstName, lastName, middleName, jobTitle, bio,
+    } = req.body;
+
+    const name = {
+      firstName,
+      lastName,
+    };
+
+    if (middleName) name.middleName = middleName;
+
+    const freenlancerProfile = {};
+    if (jobTitle) freenlancerProfile.jobTitle = jobTitle;
+    if (bio) freenlancerProfile.bio = bio;
 
     // check if this user exist
     const data = await User.findOne({ _id });

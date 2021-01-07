@@ -55,7 +55,7 @@ const bid = async (req, res, next) => {
     }
 
     const data = await Job.findOneAndUpdate({ _id: job },
-      { $push: { bids: bidPayload } }, { new: true });
+      { $push: { bids: bidPayload } }, { new: true }).populate('user').populate('bids.user').exec();
 
     sendResponse(res, null, data);
   } catch (error) {
@@ -79,7 +79,8 @@ const bidAction = async (req, res, next) => {
       payload.status = JobStatus.IN_PROGRESS;
     }
 
-    const data = await Job.findOneAndUpdate({ _id: job, 'bids._id': bidId }, payload, { new: true });
+    const data = await Job.findOneAndUpdate({ _id: job, 'bids._id': bidId }, payload, { new: true })
+      .populate('user').populate('bids.user').exec();
 
     sendResponse(res, null, data);
   } catch (error) {
@@ -201,7 +202,7 @@ const getAll = async (req, res, next) => {
                 title: { $first: '$title' },
                 description: { $first: '$description' },
                 budget: { $first: '$budget' },
-                bids: { $push: '$bids' },
+                bids: { $push: { $cond: [{ $ne: [{ $type: '$bids._id' }, 'missing'] }, '$bids', '$$REMOVE'] } },
                 currency: { $first: '$currency' },
                 status: { $first: '$status' },
                 user: { $first: '$user' },
