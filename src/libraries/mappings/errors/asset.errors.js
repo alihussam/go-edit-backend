@@ -14,5 +14,10 @@ module.exports = {
     statusCode: httpStatus.FORBIDDEN,
     message: 'Bid already placed',
   },
+  JOB_NOT_FOUND: {
+    key: 'JOB_NOT_FOUND',
+    statusCode: httpStatus.NOT_FOUND,
+    message: 'Asset not found',
+  },
 
 };

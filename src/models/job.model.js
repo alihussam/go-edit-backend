@@ -6,6 +6,7 @@ const {
   Job: JobConstants,
 } = require('../constants');
 const { JobStatus } = require('../constants/job.constant');
+const { RatingSchema } = require('./schemas');
 
 const BidSchema = mongoose.Schema({
   user: {
@@ -54,6 +55,10 @@ const JobSchema = mongoose.Schema({
     type: mongoose.Types.ObjectId,
     ref: CollectionConstants.USER,
   },
+  // rating for employer
+  employerRating: RatingSchema,
+  // rating for freelancer
+  freelancerRating: RatingSchema,
   bids: [BidSchema],
   isDisabled: { type: Boolean, default: false },
 }, {

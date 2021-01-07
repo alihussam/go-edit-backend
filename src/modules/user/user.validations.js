@@ -6,9 +6,9 @@ const { User: { Roles: UserRoleConstants } } = require('../../constants');
  */
 const updateProfile = {
   body: Joi.object({
-    firstName: Joi.string().required(),
+    firstName: Joi.string(),
     middleName: Joi.string(),
-    lastName: Joi.string().required(),
+    lastName: Joi.string(),
     // name: Joi.object({
     //   firstName: Joi.string().required(),
     //   middleName: Joi.string(),

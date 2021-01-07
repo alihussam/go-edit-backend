@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { Job } = require('../../models');
+const { Job, User } = require('../../models');
 const {
   sendResponse,
   Factory: { ErrorFactory },
@@ -11,6 +11,7 @@ const { ACCOUNT_ALREADY_EXIST } = require('../../libraries/mappings/errors/accou
 const collectionConstant = require('../../constants/collection.constant');
 const { JobStatus, BidStatus } = require('../../constants/job.constant');
 const { AssetErrors } = require('../../libraries/mappings/errors');
+const { update } = require('../../models/job.model');
 
 /**
  * Create a job
@@ -100,9 +101,72 @@ const jobAction = async (req, res, next) => {
 
     const payload = { status };
 
-    const data = await Job.findOneAndUpdate({ _id: job }, payload, { new: true });
+    const data = await Job.findOneAndUpdate({ _id: job }, payload, { new: true })
+      .populate('user').populate('bids.user').exec();
 
     sendResponse(res, null, data);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Rating the respective users controller
+ * @param {Request} req express request object
+ * @param {Response} res express response object
+ * @param {Function} next express next middleware
+ */
+const provideRating = async (req, res, next) => {
+  try {
+    const {
+      job, user, text, rating,
+    } = req.body;
+
+    // create the rating
+    const ratingPayload = {
+      user,
+      text,
+      rating,
+      job,
+    };
+
+    // get job data
+    const jobData = await Job.findOne({ _id: job }).lean();
+    if (!jobData) {
+      throw ErrorFactory.getError(AssetErrors.JOB_NOT_FOUND);
+    }
+
+    // calculate average of this users ratings
+    const userData = await User.findOne({ _id: user });
+    if (!userData) {
+      throw ErrorFactory.getError(AccountErrors.ACCOUNT_NOT_FOUND);
+    }
+    userData.ratings = userData.ratings || [];
+
+    const ratingSum = userData.ratings.reduce(
+      (acc, ratingObject) => acc + (ratingObject.rating || 0), 0);
+    let averageRating = ratingSum / userData.ratings.length;
+    averageRating = isFinite(averageRating) ? averageRating : 0;
+
+    const payload = { $push: { ratings: ratingPayload } };
+    const jobPayload = {};
+    // check if user providing the rating is employer or employee
+    if (jobData.user === user) {
+      // employer
+      payload['freenlancerProfile.rating'] = averageRating;
+      jobPayload.freelancerRating = ratingPayload;
+    } else {
+      // employee
+      jobPayload.employerRating = ratingPayload;
+      payload['employerProfile.rating'] = averageRating;
+    }
+
+    await User.update({ _id: user }, payload);
+
+    const finalJobData = await Job.findOneAndUpdate({ _id: job }, jobPayload)
+      .populate('user').populate('bids.user').exec();
+
+    sendResponse(res, null, finalJobData);
   } catch (error) {
     next(error);
   }
@@ -170,6 +234,8 @@ const getAll = async (req, res, next) => {
                 bids: 1,
                 status: 1,
                 currency: 1,
+                employerRating: 1,
+                freelancerRating: 1,
                 user: { $arrayElemAt: ['$user', 0] },
                 createdAt: 1,
                 updatedAt: 1,
@@ -206,6 +272,8 @@ const getAll = async (req, res, next) => {
                 currency: { $first: '$currency' },
                 status: { $first: '$status' },
                 user: { $first: '$user' },
+                employerRating: { $first: '$employerRating' },
+                freelancerRating: { $first: '$freelancerRating' },
                 createdAt: { $first: '$createdAt' },
                 updatedAt: { $first: '$updatedAt' },
               },
@@ -239,4 +307,5 @@ module.exports = {
   bidAction,
   jobAction,
   getAll,
+  provideRating,
 };

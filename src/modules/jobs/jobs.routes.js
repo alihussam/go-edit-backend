@@ -6,6 +6,7 @@ const {
   bidAction,
   jobAction,
   getAll,
+  provideRating,
 } = require('./jobs.controller');
 
 const {
@@ -14,6 +15,7 @@ const {
   bidAction: bidActionValidation,
   jobAction: jobActionValidation,
   getAll: getAllValidation,
+  provideRating: provideRatingValidation,
 } = require('./jobs.validations');
 
 /* Create Job, Path - /api/jobs/create */
@@ -35,6 +37,10 @@ router.post('/bidAction',
 router.post('/jobAction',
   validate(jobActionValidation),
   jobAction);
+
+router.post('/provideRating',
+  validate(provideRatingValidation),
+  provideRating);
 
 /* Get All Jobs, Path - /api/jobs/getAll */
 router.get('/getAll',

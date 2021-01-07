@@ -82,6 +82,20 @@ const jobAction = {
 };
 
 /**
+ * Job action validation
+ */
+const provideRating = {
+  body: Joi.object({
+    job: Joi.string().hex().min(24).max(24)
+      .required(),
+    user: Joi.string().hex().min(24).max(24)
+      .required(),
+    text: Joi.string(),
+    rating: Joi.number().required(),
+  }),
+};
+
+/**
  * Get All currency validation
  */
 const getAll = {
@@ -105,4 +119,5 @@ module.exports = {
   bidAction,
   jobAction,
   getAll,
+  provideRating,
 };

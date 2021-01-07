@@ -1,3 +1,4 @@
+const { first } = require('lodash');
 const { User } = require('../../models');
 const { JWT } = require('../../config');
 const {
@@ -52,13 +53,6 @@ const updateProfile = async (req, res, next) => {
       firstName, lastName, middleName, jobTitle, bio,
     } = req.body;
 
-    const name = {
-      firstName,
-      lastName,
-    };
-
-    if (middleName) name.middleName = middleName;
-
     const freenlancerProfile = {};
     if (jobTitle) freenlancerProfile.jobTitle = jobTitle;
     if (bio) freenlancerProfile.bio = bio;
@@ -71,11 +65,17 @@ const updateProfile = async (req, res, next) => {
     }
 
     const updatePayload = {};
-    if (name) updatePayload.name = name;
     if (freenlancerProfile) {
       updatePayload.freenlancerProfile = {
         ...data.freenlancerProfile,
         ...freenlancerProfile,
+      };
+    }
+    if (firstName || lastName || middleName) {
+      updatePayload.name = {
+        firstName: firstName || data.name.firstName,
+        middleName: middleName || data.name.middleName,
+        lastName: lastName || data.name.lastName,
       };
     }
 

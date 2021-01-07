@@ -6,7 +6,7 @@ const {
   Collection: CollectionConstants,
   User: UserConstants,
 } = require('../constants');
-const { NameSchema } = require('./schemas');
+const { NameSchema, RatingSchema } = require('./schemas');
 
 /**
  * Schema
@@ -28,6 +28,7 @@ const UserSchema = mongoose.Schema({
     type: String,
   }],
   isDisabled: { type: Boolean, default: false },
+  ratings: [RatingSchema],
   // freelance profile details
   freenlancerProfile: {
     jobTitle: {
