@@ -8,7 +8,7 @@ module.exports = {
   },
   ACCOUNT_NOT_FOUND: {
     key: 'ACCOUNT_NOT_FOUND',
-    statusCode: httpStatus.NOT_FOUND,
+    statusCode: httpStatus.UNAUTHORIZED,
     message: 'No such account exist',
   },
   INVALID_LOGIN_CREDENTIALS: {

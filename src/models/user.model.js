@@ -31,6 +31,10 @@ const UserSchema = mongoose.Schema({
   ratings: [RatingSchema],
   // freelance profile details
   freenlancerProfile: {
+    earning: {
+      type: Number,
+      default: 0,
+    },
     jobTitle: {
       type: String,
     },
@@ -55,6 +59,10 @@ const UserSchema = mongoose.Schema({
     }],
   },
   employerProfile: {
+    spent: {
+      type: Number,
+      default: 0,
+    },
     rating: {
       type: Number,
       default: 0,

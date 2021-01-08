@@ -78,10 +78,19 @@ const bidAction = async (req, res, next) => {
 
     if (status === BidStatus.ACCEPETED) {
       payload.status = JobStatus.IN_PROGRESS;
+
+      // find accepted user
+      const tempJobData = await Job.findOne({ _id: job, 'bids._id': bidId });
+      tempJobData.bids = tempJobData.bids || [];
+      tempJobData.bids.forEach((bid) => {
+        if (bid._id.toString() === bidId) {
+          payload.freelancer = bid.user;
+        }
+      });
     }
 
     const data = await Job.findOneAndUpdate({ _id: job, 'bids._id': bidId }, payload, { new: true })
-      .populate('user').populate('bids.user').exec();
+      .populate('user').populate('bids.user').populate('freelancer').exec();
 
     sendResponse(res, null, data);
   } catch (error) {
@@ -97,12 +106,23 @@ const bidAction = async (req, res, next) => {
  */
 const jobAction = async (req, res, next) => {
   try {
-    const { job, status } = req.body;
+    const { _id } = req.profile;
+    const { job, status, ccNumber, ccHolder, ccCvv } = req.body;
 
     const payload = { status };
 
+    // if (ccNumber !== '4242-4242-4242-4242') {
+    //   throw new Error('Invalid credit card details');
+    // }
+
     const data = await Job.findOneAndUpdate({ _id: job }, payload, { new: true })
       .populate('user').populate('bids.user').exec();
+
+    if (status === JobStatus.COMPLETED) {
+      // increment it in users earned money
+      await User.update({ _id: data.freelancer._id }, { $inc: { 'freenlancerProfile.earning': data.budget } });
+      await User.update({ _id }, { $inc: { 'employerProfile.spent': data.budget } });
+    }
 
     sendResponse(res, null, data);
   } catch (error) {
@@ -151,7 +171,7 @@ const provideRating = async (req, res, next) => {
     const payload = { $push: { ratings: ratingPayload } };
     const jobPayload = {};
     // check if user providing the rating is employer or employee
-    if (jobData.user === user) {
+    if (jobData.user.toString() === user) {
       // employer
       payload['freenlancerProfile.rating'] = averageRating;
       jobPayload.freelancerRating = ratingPayload;
@@ -164,7 +184,7 @@ const provideRating = async (req, res, next) => {
     await User.update({ _id: user }, payload);
 
     const finalJobData = await Job.findOneAndUpdate({ _id: job }, jobPayload)
-      .populate('user').populate('bids.user').exec();
+      .populate('user').populate('bids.user').lean();
 
     sendResponse(res, null, finalJobData);
   } catch (error) {

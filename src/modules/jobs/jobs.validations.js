@@ -78,6 +78,9 @@ const jobAction = {
       JobConstants.JobStatus.COMPLETED,
       JobConstants.JobStatus.CANCELED,
     ).required(),
+    ccNumber: Joi.string(),
+    ccHolder: Joi.string(),
+    ccCvv: Joi.string(),
   }),
 };
 

@@ -55,6 +55,10 @@ const JobSchema = mongoose.Schema({
     type: mongoose.Types.ObjectId,
     ref: CollectionConstants.USER,
   },
+  freelancer: {
+    type: mongoose.Types.ObjectId,
+    ref: CollectionConstants.USER,
+  },
   // rating for employer
   employerRating: RatingSchema,
   // rating for freelancer
