@@ -7,6 +7,7 @@ const {
   jobAction,
   getAll,
   provideRating,
+  getSingleJob,
 } = require('./jobs.controller');
 
 const {
@@ -46,6 +47,10 @@ router.post('/provideRating',
 router.get('/getAll',
   validate(getAllValidation),
   getAll);
+
+/* Get Single Job, Path - /api/jobs/getSingleJob */
+router.get('/getSingleJob/:jobId',
+  getSingleJob);
 
 /**
  * Export router

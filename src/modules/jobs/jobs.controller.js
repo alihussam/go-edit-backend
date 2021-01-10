@@ -12,6 +12,8 @@ const collectionConstant = require('../../constants/collection.constant');
 const { JobStatus, BidStatus } = require('../../constants/job.constant');
 const { AssetErrors } = require('../../libraries/mappings/errors');
 const { update } = require('../../models/job.model');
+const { isObject } = require('lodash');
+const { JOB_NOT_FOUND } = require('../../libraries/mappings/errors/asset.errors');
 
 /**
  * Create a job
@@ -56,7 +58,9 @@ const bid = async (req, res, next) => {
     }
 
     const data = await Job.findOneAndUpdate({ _id: job },
-      { $push: { bids: bidPayload } }, { new: true }).populate('user').populate('bids.user').exec();
+      { $push: { bids: bidPayload } }, { new: true }).populate('user').populate('bids.user').populate('freelancer');
+
+    global.io.emit(`job_update_${job}`);
 
     sendResponse(res, null, data);
   } catch (error) {
@@ -90,7 +94,9 @@ const bidAction = async (req, res, next) => {
     }
 
     const data = await Job.findOneAndUpdate({ _id: job, 'bids._id': bidId }, payload, { new: true })
-      .populate('user').populate('bids.user').populate('freelancer').exec();
+      .populate('user').populate('bids.user').populate('freelancer').lean();
+
+    global.io.emit(`job_update_${job}`);
 
     sendResponse(res, null, data);
   } catch (error) {
@@ -116,13 +122,15 @@ const jobAction = async (req, res, next) => {
     // }
 
     const data = await Job.findOneAndUpdate({ _id: job }, payload, { new: true })
-      .populate('user').populate('bids.user').exec();
+      .populate('user').populate('bids.user').populate('freelancer').lean();
 
     if (status === JobStatus.COMPLETED) {
       // increment it in users earned money
       await User.update({ _id: data.freelancer._id }, { $inc: { 'freenlancerProfile.earning': data.budget } });
       await User.update({ _id }, { $inc: { 'employerProfile.spent': data.budget } });
     }
+
+    global.io.emit(`job_update_${job}`);
 
     sendResponse(res, null, data);
   } catch (error) {
@@ -184,13 +192,35 @@ const provideRating = async (req, res, next) => {
     await User.update({ _id: user }, payload);
 
     const finalJobData = await Job.findOneAndUpdate({ _id: job }, jobPayload)
-      .populate('user').populate('bids.user').lean();
+      .populate('user').populate('bids.user').populate('freelancer').lean();
+
+      global.io.emit(`job_update_${job}`);
 
     sendResponse(res, null, finalJobData);
   } catch (error) {
     next(error);
   }
 };
+
+
+const getSingleJob = async (req, res, next) => {
+  try {
+    const { jobId } = req.params;
+
+    const data = await await Job.findOne({ _id: jobId })
+      .populate('user')
+      .populate('bids.user')
+      .populate('freelancer').lean();
+    if (!data) {
+      const error = ErrorFactory.getError(JOB_NOT_FOUND);
+      throw error;
+    }
+
+    sendResponse(res, null, data);
+  } catch (error) {
+    next(error);
+  }
+}
 
 /**
  * GetAll Jobs based on user role
@@ -328,4 +358,5 @@ module.exports = {
   jobAction,
   getAll,
   provideRating,
+  getSingleJob,
 };

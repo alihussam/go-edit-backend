@@ -34,6 +34,11 @@ const create = async (req, res, next) => {
     const data = await Chat.create(payload);
     const final = await Chat.findOne({ _id: data._id }).populate('reciever').populate('sender');
 
+    // receiver, if not in chat
+    global.io.emit(`new_message_${_id}`);
+    // receiver_sender, if in chat
+    global.io.emit(`new_message_${user}_${_id}`);
+
     sendResponse(res, null, final);
   } catch (error) {
     next(error);
@@ -45,7 +50,8 @@ const getAllMessages = async (req, res, next) => {
     const { _id } = req.profile;
     const { user } = req.query;
 
-    const data = await Chat.find({ reciever: user, sender: _id }).populate('reciever').populate('sender');
+    const data = await Chat.find({ $or: [{ reciever: user, sender: _id }, { reciever: _id, sender: user }] })
+      .populate('reciever').populate('sender').lean();
 
     sendResponse(res, null, data);
   } catch (error) {
@@ -79,10 +85,10 @@ const getAll = async (req, res, next) => {
       skip = (page * limit) - limit;
     }
 
+    $match.$or = [{ sender: mongoose.Types.ObjectId(_id) }, { reciever: mongoose.Types.ObjectId(_id) }];
+
     // construct query
-    if (sender) {
-      $match.sender = mongoose.Types.ObjectId(sender);
-    }
+
     if (searchString) {
       $match.$text = { $search: searchString };
     }

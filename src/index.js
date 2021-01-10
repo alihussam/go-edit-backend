@@ -56,7 +56,7 @@ if (MONGOOSE_DEBUG) {
 /**
  * Start server on PORT defined in config
  */
-const server = http.createServer(app);
+const server = http.Server(app);
 const io = socketIO(server);
 // init all socket
 require('./socket')(io);
