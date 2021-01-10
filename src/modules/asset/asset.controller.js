@@ -34,16 +34,16 @@ const create = async (req, res, next) => {
     await User.update({ _id }, { $inc: { 'freenlancerProfile.assets': 1 } });
 
     // find resource first
-    const resourceFiles = files.filter((file) => file.originalname === 'resource');
-    if (!resourceFiles.length) {
-      throw ErrorFactory.getError(SystemErrors.MISSING_FILE_UPLOAD_PARAMETERS);
-    }
+    // const resourceFiles = files.filter((file) => file.originalname === 'resource');
+    // if (!resourceFiles.length) {
+    //   throw ErrorFactory.getError(SystemErrors.MISSING_FILE_UPLOAD_PARAMETERS);
+    // }
 
     const fileUploadPayload = {};
 
-    // upload resource file first
-    const resourceUrl = await fileUpload(`ge/${_id}/assets/${data._id.toString()}`, resourceFiles[0]);
-    fileUploadPayload.resourceUrl = resourceUrl;
+    // // upload resource file first
+    // const resourceUrl = await fileUpload(`ge/${_id}/assets/${data._id.toString()}`, resourceFiles[0]);
+    // fileUploadPayload.resourceUrl = resourceUrl;
 
     // upload images
     const uploadStatus = await multiFileUpload(`ge/${_id}/assets/${data._id.toString()}`, files);
