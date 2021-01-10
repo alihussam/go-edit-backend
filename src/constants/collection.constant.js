@@ -3,4 +3,5 @@ module.exports = {
   SKILL: 'skills',
   JOB: 'jobs',
   ASSET: 'assets',
+  CHAT: 'chats',
 };
