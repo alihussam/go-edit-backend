@@ -60,7 +60,9 @@ const bid = async (req, res, next) => {
     const data = await Job.findOneAndUpdate({ _id: job },
       { $push: { bids: bidPayload } }, { new: true }).populate('user').populate('bids.user').populate('freelancer');
 
-    global.io.emit(`job_update_${job}`);
+    if (global.io) {
+      global.io.emit(`job_update_${job}`);
+    }
 
     sendResponse(res, null, data);
   } catch (error) {
@@ -194,7 +196,7 @@ const provideRating = async (req, res, next) => {
     const finalJobData = await Job.findOneAndUpdate({ _id: job }, jobPayload)
       .populate('user').populate('bids.user').populate('freelancer').lean();
 
-      global.io.emit(`job_update_${job}`);
+    global.io.emit(`job_update_${job}`);
 
     sendResponse(res, null, finalJobData);
   } catch (error) {
@@ -233,6 +235,8 @@ const getAll = async (req, res, next) => {
     const { _id } = req.profile;
     const {
       searchString,
+      status,
+      negateStatus,
       user,
       page,
     } = req.query;
@@ -246,6 +250,14 @@ const getAll = async (req, res, next) => {
       limit = Number.MAX_SAFE_INTEGER;
     } else {
       skip = (page * limit) - limit;
+    }
+
+    if (status) {
+      if (Array.isArray(status)) {
+        $match.status = { $in: status };
+      } else {
+        $match.status = status;
+      }
     }
 
     // construct query

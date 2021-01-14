@@ -110,6 +110,14 @@ const getAll = {
       .max(24),
     page: Joi.number(),
     limit: Joi.number(),
+    negateStatus: Joi.alternatives(
+      Joi.string(),
+      Joi.array().items(Joi.string()),
+    ),
+    status: Joi.alternatives(
+      Joi.string(),
+      Joi.array().items(Joi.string()),
+    ),
   }),
 };
 
