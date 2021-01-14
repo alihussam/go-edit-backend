@@ -106,10 +106,13 @@ const getAll = async (req, res, next) => {
     const {
       searchString,
       page,
+      sortField,
     } = req.query;
     let { limit = 50 } = req.query;
     let skip;
     const $match = {};
+
+    if (limit) limit = Number(limit);
 
     // construct pagination
     if (!page) {
@@ -120,9 +123,16 @@ const getAll = async (req, res, next) => {
     }
 
     // construct query
-    // if (searchString) {
-    //   $match.$text = { $search: searchString };
-    // }
+    if (searchString) {
+      $match.$text = { $search: searchString };
+    }
+
+    const sortPipelines = [];
+    if (sortField) {
+      sortPipelines.push({ $sort: { [sortField]: -1 } });
+    } else {
+      sortPipelines.push({ $sort: { createdAt: -1 } });
+    }
 
     const [data] = await User.aggregate([
       { $match },
@@ -132,7 +142,7 @@ const getAll = async (req, res, next) => {
           metaData: [{ $count: 'totalDocuments' }, { $addFields: { page, limit } }],
           entries: [
             // paginate data
-            { $sort: { createdAt: -1 } },
+            ...sortPipelines,
             { $skip: skip },
             { $limit: limit },
           ],

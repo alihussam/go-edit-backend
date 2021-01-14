@@ -22,7 +22,7 @@ const UserSchema = mongoose.Schema({
   },
   imageUrl: {
     type: String,
-    default: 'https://uifaces.co/our-content/donated/L7wQctBt.jpg',
+    default: 'https://bridgetheblue.com/wp-content/uploads/2018/02/male-placeholder.png',
   },
   portfolioUrls: [{
     type: String,
@@ -39,6 +39,10 @@ const UserSchema = mongoose.Schema({
       type: String,
     },
     rating: {
+      type: Number,
+      default: 0,
+    },
+    ratingCount: {
       type: Number,
       default: 0,
     },
@@ -67,6 +71,10 @@ const UserSchema = mongoose.Schema({
       type: Number,
       default: 0,
     },
+    ratingCount: {
+      type: Number,
+      default: 0,
+    },
     projectsCompleted: {
       type: Number,
       default: 0,
@@ -78,6 +86,13 @@ const UserSchema = mongoose.Schema({
   },
 }, {
   timestamps: true,
+});
+
+UserSchema.index({
+  'name.firstName': 'text',
+  'name.middleName': 'text',
+  'name.lastName': 'text',
+  'freenlancerProfile.bio': 'text',
 });
 
 /**

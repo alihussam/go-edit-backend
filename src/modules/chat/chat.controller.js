@@ -34,10 +34,12 @@ const create = async (req, res, next) => {
     const data = await Chat.create(payload);
     const final = await Chat.findOne({ _id: data._id }).populate('reciever').populate('sender');
 
-    // receiver, if not in chat
-    global.io.emit(`new_message_${_id}`);
-    // receiver_sender, if in chat
-    global.io.emit(`new_message_${user}_${_id}`);
+    if (global.io) {
+      // receiver, if not in chat
+      global.io.emit(`new_message_${_id}`);
+      // receiver_sender, if in chat
+      global.io.emit(`new_message_${user}_${_id}`);
+    }
 
     sendResponse(res, null, final);
   } catch (error) {
@@ -104,10 +106,15 @@ const getAll = async (req, res, next) => {
             { $sort: { createdAt: -1 } },
             { $skip: skip },
             { $limit: limit },
+            {
+              $addFields: {
+                opposite: { $cond: [{ $eq: ['$reciever', mongoose.Types.ObjectId(_id)] }, '$sender', '$reciever'] },
+              },
+            },
             // group all by user
             {
               $group: {
-                _id: '$reciever',
+                _id: '$opposite',
                 messages: {
                   $push: {
                     text: '$text',

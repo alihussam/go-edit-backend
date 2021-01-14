@@ -26,6 +26,7 @@ const updateProfile = {
 const getAll = {
   query: Joi.object({
     searchString: Joi.string(),
+    sortField: Joi.string(),
     user: Joi.string().hex().min(24).max(24),
     page: Joi.number(),
     limit: Joi.number(),
