@@ -118,6 +118,7 @@ const getAll = {
       Joi.string(),
       Joi.array().items(Joi.string()),
     ),
+    isCurrent: Joi.boolean(),
   }),
 };
 

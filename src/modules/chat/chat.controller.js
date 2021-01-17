@@ -13,6 +13,7 @@ const collectionConstant = require('../../constants/collection.constant');
 const { JobStatus, BidStatus } = require('../../constants/job.constant');
 const { AssetErrors } = require('../../libraries/mappings/errors');
 const chatModel = require('../../models/chat.model');
+const { findLast } = require('lodash');
 
 /**
  * Create an asset
@@ -36,9 +37,16 @@ const create = async (req, res, next) => {
 
     if (global.io) {
       // receiver, if not in chat
-      global.io.emit(`new_message_${_id}`);
+      global.io.emit(`notification_${user}`, {
+
+      });
       // receiver_sender, if in chat
-      global.io.emit(`new_message_${user}_${_id}`);
+      global.io.emit(`new_message_${user}_${_id}`, {
+        title: final.sender && final.sender.name && final.sender.firstName
+          ? final.sender.firstName + ' ' + final.sender.lastName
+          : 'New message',
+        text: text || ''
+      });
     }
 
     sendResponse(res, null, final);

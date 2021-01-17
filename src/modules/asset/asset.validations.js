@@ -54,7 +54,7 @@ const getAll = {
 };
 
 const createResource = {
-  query: Joi.object({
+  body: Joi.object({
     assetId: Joi.string().hex().min(24).max(24)
       .required(),
     isRemoveResource: Joi.boolean(),

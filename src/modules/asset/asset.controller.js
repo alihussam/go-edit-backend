@@ -12,6 +12,7 @@ const { ACCOUNT_ALREADY_EXIST } = require('../../libraries/mappings/errors/accou
 const collectionConstant = require('../../constants/collection.constant');
 const { JobStatus, BidStatus } = require('../../constants/job.constant');
 const { AssetErrors } = require('../../libraries/mappings/errors');
+const { ASSET_NOT_FOUND } = require('../../libraries/mappings/errors/asset.errors');
 
 /**
  * Create an asset
@@ -112,7 +113,7 @@ const update = async (req, res, next) => {
  */
 const createResource = async (req, res, next) => {
   try {
-    const { profile: { _id }, file } = req;
+    const { profile: { _id }, files } = req;
     const { assetId } = req.body;
     let { isRemoveResource = false } = req.body;
 
@@ -124,7 +125,9 @@ const createResource = async (req, res, next) => {
 
     // upload images
     if (!isRemoveResource) {
-      payload.resourceUrl = await fileUpload(`ge/${_id}/assets/${assetId.toString()}`, file);
+      if (files.length > 0) {
+        payload.resourceUrl = await fileUpload(`ge/${_id}/assets/${assetId.toString()}`, files[0]);
+      }
     }
 
     const data = await Asset.findOneAndUpdate({ _id: assetId, user: _id }, payload, { new: true });
@@ -226,6 +229,23 @@ const getAll = async (req, res, next) => {
   }
 };
 
+const getSingleAsset = async (req, res, next) => {
+  try {
+    const { assetId } = req.params;
+
+    const data = await await Asset.findOne({ _id: assetId })
+      .populate('user').lean();
+    if (!data) {
+      const error = ErrorFactory.getError(ASSET_NOT_FOUND);
+      throw error;
+    }
+
+    sendResponse(res, null, data);
+  } catch (error) {
+    next(error);
+  }
+}
+
 /**
  * Export
  */
@@ -234,4 +254,5 @@ module.exports = {
   update,
   createResource,
   getAll,
+  getSingleAsset,
 };

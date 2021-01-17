@@ -5,6 +5,7 @@ const {
   createResource,
   update,
   getAll,
+  getSingleAsset,
 } = require('./asset.controller');
 
 const {
@@ -28,7 +29,7 @@ router.post('/update',
 
 /* create Resource Asset, Path - /api/asset/createResource */
 router.post('/createResource',
-  fileUpload(),
+  fileUpload('files', false),
   validate(createResourceValidation),
   createResource);
 
@@ -36,6 +37,9 @@ router.post('/createResource',
 router.get('/getAll',
   validate(getAllValidation),
   getAll);
+
+router.get('/getSingleAsset/:assetId',
+  getSingleAsset);
 
 /**
  * Export router

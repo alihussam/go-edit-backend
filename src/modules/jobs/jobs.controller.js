@@ -184,16 +184,18 @@ const provideRating = async (req, res, next) => {
     if (jobData.user.toString() === user) {
       // employer
       payload['freenlancerProfile.rating'] = averageRating;
+      payload['$inc'] = { 'freenlancerProfile.ratingCount': 1 };
       jobPayload.freelancerRating = ratingPayload;
     } else {
       // employee
       jobPayload.employerRating = ratingPayload;
       payload['employerProfile.rating'] = averageRating;
+      payload['$inc'] = { 'employerProfile.ratingCount': 1 };
     }
 
     await User.update({ _id: user }, payload);
 
-    const finalJobData = await Job.findOneAndUpdate({ _id: job }, jobPayload)
+    const finalJobData = await Job.findOneAndUpdate({ _id: job }, jobPayload, { new: true })
       .populate('user').populate('bids.user').populate('freelancer').lean();
 
     global.io.emit(`job_update_${job}`);
@@ -239,6 +241,7 @@ const getAll = async (req, res, next) => {
       negateStatus,
       user,
       page,
+      isCurrent,
     } = req.query;
     let { limit = 50 } = req.query;
     let skip;
@@ -264,6 +267,10 @@ const getAll = async (req, res, next) => {
     if (user) {
       $match.user = mongoose.Types.ObjectId(user);
     }
+    if (isCurrent) {
+      $match.freelancer = mongoose.Types.ObjectId(_id);
+    }
+
     if (searchString) {
       $match.$text = { $search: searchString };
     }
