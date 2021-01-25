@@ -145,6 +145,7 @@ const getAll = async (req, res, next) => {
             ...sortPipelines,
             { $skip: skip },
             { $limit: limit },
+            { $addFields: { ratings: [] } },
           ],
         },
       },
