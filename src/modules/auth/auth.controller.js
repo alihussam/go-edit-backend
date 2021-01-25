@@ -89,7 +89,15 @@ const signup = async (req, res, next) => {
 const getProfile = async (req, res, next) => {
   try {
     const { _id } = req.profile;
-    const data = await User.findOne({ _id, role: req.role })
+    const { user } = req.query;
+
+    const query = { _id, role: req.role };
+
+    if (user) {
+      query._id = user;
+    }
+
+    const data = await User.findOne(query)
       .populate('ratings.user')
       .populate('ratings.job');
     if (!data) {
