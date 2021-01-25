@@ -89,7 +89,9 @@ const signup = async (req, res, next) => {
 const getProfile = async (req, res, next) => {
   try {
     const { _id } = req.profile;
-    const data = await User.findOne({ _id, role: req.role });
+    const data = await User.findOne({ _id, role: req.role })
+      .populate('ratings.user')
+      .populate('ratings.job');
     if (!data) {
       const error = ErrorFactory.getError(AccountErrors.ACCOUNT_NOT_FOUND);
       throw error;

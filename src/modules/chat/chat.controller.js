@@ -37,9 +37,8 @@ const create = async (req, res, next) => {
 
     if (global.io) {
       // receiver, if not in chat
-      global.io.emit(`notification_${user}`, {
-
-      });
+      global.io.emit(`notification_${user}`, {});
+      global.io.emit(`notification_`);
       // receiver_sender, if in chat
       global.io.emit(`new_message_${user}_${_id}`, {
         title: final.sender && final.sender.name && final.sender.firstName

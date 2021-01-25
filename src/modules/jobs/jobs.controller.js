@@ -148,12 +148,12 @@ const jobAction = async (req, res, next) => {
  */
 const provideRating = async (req, res, next) => {
   try {
-    const {
+    let {
       job, user, text, rating,
     } = req.body;
 
     // create the rating
-    const ratingPayload = {
+    let ratingPayload = {
       user,
       text,
       rating,
@@ -183,11 +183,13 @@ const provideRating = async (req, res, next) => {
     // check if user providing the rating is employer or employee
     if (jobData.user.toString() === user) {
       // employer
+      user = jobData.freelancer;
       payload['freenlancerProfile.rating'] = averageRating;
       payload['$inc'] = { 'freenlancerProfile.ratingCount': 1 };
       jobPayload.freelancerRating = ratingPayload;
     } else {
       // employee
+      user = jobData.user;
       jobPayload.employerRating = ratingPayload;
       payload['employerProfile.rating'] = averageRating;
       payload['$inc'] = { 'employerProfile.ratingCount': 1 };
@@ -196,7 +198,10 @@ const provideRating = async (req, res, next) => {
     await User.update({ _id: user }, payload);
 
     const finalJobData = await Job.findOneAndUpdate({ _id: job }, jobPayload, { new: true })
-      .populate('user').populate('bids.user').populate('freelancer').lean();
+      .populate('user').populate('bids.user').populate('freelancer')
+      .populate('employerRating.user')
+      .populate('freelancerRating.user')
+      .lean();
 
     global.io.emit(`job_update_${job}`);
 
@@ -214,6 +219,8 @@ const getSingleJob = async (req, res, next) => {
     const data = await await Job.findOne({ _id: jobId })
       .populate('user')
       .populate('bids.user')
+      .populate('employerRating.user')
+      .populate('freelancerRating.user')
       .populate('freelancer').lean();
     if (!data) {
       const error = ErrorFactory.getError(JOB_NOT_FOUND);
