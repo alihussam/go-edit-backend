@@ -27,7 +27,9 @@ const updateProfilePicture = async (req, res, next) => {
       payload.imageUrl = await fileUpload(`ge/${_id}`, files[0]);
     }
 
-    const newData = await User.findOneAndUpdate({ _id }, payload, { new: true });
+    const newData = await User.findOneAndUpdate({ _id }, payload, { new: true })
+      .populate('ratings.user')
+      .populate('ratings.job');
     if (!newData) {
       const error = ErrorFactory.getError(AccountErrors.ACCOUNT_NOT_FOUND);
       throw error;
@@ -85,7 +87,9 @@ const updateProfile = async (req, res, next) => {
 
     updatePayload.$push = { portfolioUrls: { $each: imageUrls } };
 
-    const newData = await User.findOneAndUpdate({ _id }, updatePayload, { new: true });
+    const newData = await User.findOneAndUpdate({ _id }, updatePayload, { new: true })
+      .populate('ratings.user')
+      .populate('ratings.job');
 
     // send response back to user
     sendResponse(res, null, newData.safeModel());
