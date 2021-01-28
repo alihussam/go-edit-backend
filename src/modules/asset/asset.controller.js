@@ -292,8 +292,8 @@ const buy = async (req, res, next) => {
 
     const money = data.price || 0;
 
-    await User.update({ _id: data.user }, { $inc: { 'freenlancerProfile.earning': price } });
-    await User.update({ _id }, { $inc: { 'employerProfile.spent': price } });
+    await User.update({ _id: data.user }, { $inc: { 'freenlancerProfile.earning': money } });
+    await User.update({ _id }, { $inc: { 'employerProfile.spent': money } });
 
     sendResponse(res, null, data);
   } catch (error) {
