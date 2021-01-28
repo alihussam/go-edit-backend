@@ -211,6 +211,7 @@ const getAll = async (req, res, next) => {
                 user: { $arrayElemAt: ['$user', 0] },
                 createdAt: 1,
                 updatedAt: 1,
+                usersBought: 1,
               },
             },
           ],
@@ -270,6 +271,32 @@ const singleImageUpload = async (req, res, next) => {
 };
 
 /**
+ * Take Action On Job
+ * @param {Request} req express request object
+ * @param {Response} res express response object
+ * @param {Function} next express next middleware
+ */
+const buy = async (req, res, next) => {
+  try {
+    const { _id } = req.profile;
+    const { asset } = req.body;
+
+    // const payload = { status };
+
+    // if (ccNumber !== '4242-4242-4242-4242') {
+    //   throw new Error('Invalid credit card details');
+    // }
+
+    const asset = await Asset.findOneAndUpdate({ _id: asset }, { usersBought: { $push: _id } })
+      .populate('user').lean();
+
+    sendResponse(res, null, asset);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * Export
  */
 module.exports = {
@@ -279,4 +306,5 @@ module.exports = {
   getAll,
   getSingleAsset,
   singleImageUpload,
+  buy,
 };
