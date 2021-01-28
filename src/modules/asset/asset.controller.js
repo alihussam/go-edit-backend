@@ -53,7 +53,7 @@ const create = async (req, res, next) => {
 
     fileUploadPayload.$push = { imageUrls: { $each: imageUrls } };
 
-    await Asset.updateOne({ _id: data._id });
+    await Asset.updateOne({ _id: data._id }, fileUploadPayload);
 
     sendResponse(res, null, {
       ...data.toObject(),
@@ -247,6 +247,26 @@ const getSingleAsset = async (req, res, next) => {
 }
 
 /**
+ * Image upload
+ * @param {req} req express request object
+ * @param {res} res express response object
+ * @param {next} next express ref to next middleware
+ */
+const singleImageUpload = async (req, res, next) => {
+  try {
+    const { profile: { _id }, files = [] } = req;
+
+
+    // upload resource file first
+    const resourceUrl = await fileUpload(`ge/${_id}/assets/all`, files[0]);
+
+    sendResponse(res, null, resourceUrl);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * Export
  */
 module.exports = {
@@ -255,4 +275,5 @@ module.exports = {
   createResource,
   getAll,
   getSingleAsset,
+  singleImageUpload,
 };

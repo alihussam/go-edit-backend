@@ -16,6 +16,7 @@ const create = {
     description: Joi
       .string()
       .required(),
+    resourceUrl: Joi.string().required(),
     price: Joi
       .number()
       .required(),

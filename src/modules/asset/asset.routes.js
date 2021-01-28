@@ -6,6 +6,7 @@ const {
   update,
   getAll,
   getSingleAsset,
+  singleImageUpload,
 } = require('./asset.controller');
 
 const {
@@ -20,6 +21,11 @@ router.post('/create',
   fileUpload('files', false),
   validate(createValidation),
   create);
+
+/* Create Asset, Path - /api/asset/create */
+router.post('/singleImageUpload',
+  fileUpload('files', false),
+  singleImageUpload);
 
 /* create Resource Asset, Path - /api/asset/update */
 router.post('/update',
