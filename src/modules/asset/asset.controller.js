@@ -237,7 +237,7 @@ const getSingleAsset = async (req, res, next) => {
   try {
     const { assetId } = req.params;
 
-    const data = await await Asset.findOne({ _id: assetId })
+    const data = await Asset.findOne({ _id: assetId })
       .populate('user').lean();
     if (!data) {
       const error = ErrorFactory.getError(ASSET_NOT_FOUND);
