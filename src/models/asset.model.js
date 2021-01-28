@@ -31,6 +31,10 @@ const AssetSchema = mongoose.Schema({
     type: mongoose.Types.ObjectId,
     ref: CollectionConstants.USER,
   },
+  usersBought: [{
+    type: mongoose.Types.ObjectId,
+    ref: CollectionConstants.USER,
+  }],
   isDisabled: { type: Boolean, default: false },
 }, {
   timestamps: true,

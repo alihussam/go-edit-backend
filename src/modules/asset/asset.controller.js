@@ -170,7 +170,10 @@ const getAll = async (req, res, next) => {
 
     // construct query
     if (user) {
-      $match.user = mongoose.Types.ObjectId(user);
+      $match.$or = [
+        { user: mongoose.Types.ObjectId(user) },
+        { usersBought: mongoose.Types.ObjectId(user) },
+      ];
     }
     if (searchString) {
       $match.$text = { $search: searchString };
