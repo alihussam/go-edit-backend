@@ -99,6 +99,45 @@ const updateProfile = async (req, res, next) => {
 };
 
 /**
+ * Update Profile controller
+ * @param {req} req express request object
+ * @param {res} res express response object
+ * @param {next} next express ref to next middleware
+ */
+const withdrawEarning = async (req, res, next) => {
+  try {
+    const { profile: { _id }, files } = req;
+    const { amount } = req.body;
+
+    // check if user has enough money
+    const data = await User.findOne({ _id });
+    if (!data) {
+      const error = ErrorFactory.getError(AccountErrors.ACCOUNT_NOT_FOUND);
+      throw error;
+    }
+
+    let accountBalance = data.freenlancerProfile ? ((data.freenlancerProfile.earning || 0) - (data.freenlancerProfile.withdrawn || 0)) : 0;
+
+    if (amount > accountBalance) {
+      const error = ErrorFactory.getError({ ...AccountErrors.ACCOUNT_NOT_FOUND, message: 'Not enough earnings to withdraw' });
+      throw error;
+    }
+
+    const currentWithdrawn = (data.freenlancerProfile.withdrawn || 0) + amount;
+    const updatePayload = { $set: { 'freenlancerProfile.withdrawn': currentWithdrawn } };
+
+    const newData = await User.findOneAndUpdate({ _id }, updatePayload, { new: true })
+      .populate('ratings.user')
+      .populate('ratings.job');
+
+    // send response back to user
+    sendResponse(res, null, newData.safeModel());
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * GetAll All users
  * @param {Request} req express request object
  * @param {Response} res express response object
@@ -176,4 +215,5 @@ module.exports = {
   updateProfile,
   updateProfilePicture,
   getAll,
+  withdrawEarning,
 };
