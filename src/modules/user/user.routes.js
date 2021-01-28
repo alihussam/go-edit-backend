@@ -8,6 +8,7 @@ const {
   updateProfile,
   updateProfilePicture,
   getAll,
+  withdrawEarning,
 } = require('./user.controller');
 const {
   updateProfile: updateProfileValidation,
@@ -24,6 +25,10 @@ router.post('/updateProfile',
   fileUpload('files', false),
   validate(updateProfileValidation),
   updateProfile);
+
+/* Update User Profile Route, Path - /api/user/updateProfile */
+router.post('/withdraw',
+  withdrawEarning);
 
 /* Get All User Profile Route, Path - /api/user/updateProfile */
 router.get('/getAll',
