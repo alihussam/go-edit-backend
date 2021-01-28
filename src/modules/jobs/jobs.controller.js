@@ -172,6 +172,7 @@ const provideRating = async (req, res, next) => {
       throw ErrorFactory.getError(AccountErrors.ACCOUNT_NOT_FOUND);
     }
     userData.ratings = userData.ratings || [];
+    userData.ratings.push(ratingPayload);
 
     const ratingSum = userData.ratings.reduce(
       (acc, ratingObject) => acc + (ratingObject.rating || 0), 0);
