@@ -287,8 +287,13 @@ const buy = async (req, res, next) => {
     //   throw new Error('Invalid credit card details');
     // }
 
-    const data = await Asset.findOneAndUpdate({ _id: asset }, { usersBought: { $push: _id } })
+    const data = await Asset.findOneAndUpdate({ _id: asset }, { $push: { usersBought: _id } })
       .populate('user').lean();
+
+    const money = data.price || 0;
+
+    await User.update({ _id: data.user }, { $inc: { 'freenlancerProfile.earning': price } });
+    await User.update({ _id }, { $inc: { 'employerProfile.spent': price } });
 
     sendResponse(res, null, data);
   } catch (error) {
